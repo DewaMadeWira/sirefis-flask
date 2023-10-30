@@ -20,7 +20,7 @@ def index():
     #                 'address':'India'})
     if request.method == "GET":
         # API Request
-        response = requests.get('http://192.168.1.10:8080/gpu2020')
+        response = requests.get('https://sirefis-backend.vercel.app/gpu2020')
 
         responseJson = response.json()
 
