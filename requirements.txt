@@ -1,4 +1,5 @@
-Flask==2.3.2
-numpy==1.26.1
-pandas==2.1.2
-pyDecision==4.2.9
+Flask
+gunicorn
+numpy
+pandas
+pyDecision
