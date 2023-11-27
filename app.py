@@ -36,6 +36,7 @@ def postRank():
     # GPU Name and ID
     gpuName = df["gpu_name"]    
     gpuId = df["gpu_id"]    
+    price = df["price"]    
 
     df_excluded = df.drop(columns=columns_to_exclude, axis=0)
 
@@ -43,17 +44,21 @@ def postRank():
     df_converted = df_excluded.astype(float)
 
     dataset = df_converted.values
+    print("dataset")
+    print(dataset)
+    
 
         # Ranking Begin
-    rank = mabac_method(dataset, criterion_type, graph = False, verbose = False)
+    rank = mabac_method(dataset, criterion_type, graph = False, verbose = True)
 
     final_rank=[]
 
         #Append to new Array with GPU Name
     for i in range(0, rank.shape[0]):
         final_rank.append({
-            "gpuId":int(gpuId[i]),
-            "gpuName":gpuName[i],
+            "gpu_id":int(gpuId[i]),
+            "gpu_name":gpuName[i],
+            "price": str(price[i]),
             "alternative":'a' + str(i+1),
             "score":round(rank[i], 4)
         })
@@ -97,7 +102,7 @@ def index():
         df = pd.DataFrame(responseJson)
 
         columns_to_exclude = ['gpu_name', 'test_date', 'category','gpu_id']
-        #columns_to_exclude = ['gpuName', 'testDate', 'category','gpuId']
+       
 
         # GPU Name
         gpuName = df["gpu_name"]    
@@ -110,7 +115,7 @@ def index():
         dataset = df_converted.values
 
         # Ranking Begin
-        rank = mabac_method(dataset, criterion_type, graph = False, verbose = False)
+        rank = edas_method(dataset, criterion_type, graph = False, verbose = False)
 
         final_rank=[]
 
