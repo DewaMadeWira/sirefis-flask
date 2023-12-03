@@ -1,5 +1,5 @@
 from flask import Flask  , render_template,request,make_response,jsonify,url_for,redirect,Response
-# import numpy as np
+import numpy as np
 import pandas as pd
 import operator
 import requests
@@ -7,6 +7,7 @@ from pyDecision.algorithm import mabac_method
 import json
 from flask_cors import CORS
 from pyDecision.algorithm import edas_method
+from pymcdm.methods import MABAC
 
 
 # Benefit or Cost
@@ -73,8 +74,31 @@ def postRank():
     return send_data
 
 
-@app.route("/rank-edas" , methods=['POST'])
+@app.route("/rank-mabac" , methods=['GET'])
 def postMabac():
+    
+    alts = np.array([
+    [4, 4, 0.2],
+    [1, 5, 0.5],
+    [3, 2, 0.3],
+    [4, 2, 0.5]
+    ])
+    
+    weights = np.array([0.3, 0.5, 0.2])
+
+    types = np.array([1, -1, 1])
+
+    mabac = MABAC()
+
+    pref = mabac(alts, weights, types)
+    print("rank :")
+    print(np.round(pref, 4))
+
+    return "done"
+
+
+@app.route("/rank-edas" , methods=['POST'])
+def postEdas():
     data = request.json['gpu_data']
     df = pd.DataFrame(data)
 
