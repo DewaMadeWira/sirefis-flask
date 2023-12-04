@@ -74,27 +74,79 @@ def postRank():
     return send_data
 
 
-@app.route("/rank-mabac" , methods=['GET'])
+@app.route("/rank-mabac" , methods=['POST'])
 def postMabac():
     
-    alts = np.array([
-    [4, 4, 0.2],
-    [1, 5, 0.5],
-    [3, 2, 0.3],
-    [4, 2, 0.5]
-    ])
-    
-    weights = np.array([0.3, 0.5, 0.2])
+    data = request.json['gpu_data']
+    df = pd.DataFrame(data)
 
-    types = np.array([1, -1, 1])
+    columns_to_exclude = ['gpu_name', 'category','gpu_id','company']
+
+    # GPU Name and ID
+    gpuName = df["gpu_name"]    
+    gpuId = df["gpu_id"]    
+    price = df["price"]    
+    memSize = df["memSize"]    
+    mem_clock = df["mem_clock"]    
+    gpu_clock = df["gpu_clock"]    
+
+    df_excluded = df.drop(columns=columns_to_exclude, axis=0)
+
+        # Convert to float
+    # df_replace= df_excluded["test_date"].replace(2020,1)
+    df_excluded["test_date"] = df_excluded["test_date"].replace(2018,1)
+    df_excluded["test_date"] = df_excluded["test_date"].replace(2019,2)
+    df_excluded["test_date"] = df_excluded["test_date"].replace(2020,3)
+    df_excluded["test_date"] = df_excluded["test_date"].replace(2021,4)
+    df_excluded["test_date"] = df_excluded["test_date"].replace(2022,5)
+    print(df_excluded["test_date"])
+    print(df_excluded)
+    df_converted = df_excluded.astype(float)
+
+
+
+    dataset = df_converted.values
+    print("dataset")
+    print(df_excluded)
+    
+    weights = np.array([0.1, 0.1, 0.1, 0.1, 0.1,0.1,0.1,0.1,0.1,0.1])
+
+    types = np.array([1, 1,-1,1,1,1,1,1,1,1])
 
     mabac = MABAC()
 
-    pref = mabac(alts, weights, types)
-    print("rank :")
+    pref = mabac(dataset, weights, types)
+    print("rank score:")
+
+    
+
     print(np.round(pref, 4))
 
-    return "done"
+    rank = np.array(np.round(pref, 4))
+
+    final_rank=[]
+
+    for i in range(0,len(rank)):
+        final_rank.append({
+            "gpu_id":int(gpuId[i]),
+            "gpu_name":gpuName[i],
+            "price": str(price[i]),
+            "alternative":'a' + str(i+1),
+            "memSize": str(memSize[i]),
+            "mem_clock": str(mem_clock[i]),
+            "gpu_clock": str(gpu_clock[i]),
+            "score":rank[i]
+        })
+
+    print(final_rank)
+
+    sorted_list = sorted(final_rank, key=lambda x: x['score'], reverse=True)
+
+    send_data = json.dumps(sorted_list)
+
+    return send_data
+
+    # return "done"
 
 
 @app.route("/rank-edas" , methods=['POST'])
